@@ -1,69 +1,67 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useReducer, useRef } from 'react';
 import Button from '../Button/Button';
 import styles from './JornalForm.module.css';
 import cn from 'classnames';
-
-const INITIAL_STATE = {
-        title: true,
-        post: true,
-        date: true
-    };
+import { INITIAL_STATE, formReducer } from './JornalForm.state';
 
 
 function JornalForm({ onSubmit }) {
 
-    const [formValidState, setFormValidState] = useState(INITIAL_STATE);
+    const [formState, dispatchForm] = useReducer(formReducer, INITIAL_STATE);
+    const { isValid, isFormReadyToSubmit, values } = formState;
+    const titleRef = useRef();
+    const dateRef = useRef();
+    const postRef = useRef();
+
+    const focusError = (isValid) => {
+        switch(true) {
+            case !isValid.title:
+                titleRef.current.focus();
+                break;
+            case !isValid.date:
+                dateRef.current.focus();
+                break;
+            case !isValid.post:
+                postRef.current.focus();
+        }
+    };
 
     useEffect(() => {
         let timerId;
-        if (!formValidState.date || !formValidState.post || !formValidState.title) {
+        if (!isValid.date || !isValid.post || !isValid.title) {
+            focusError(isValid);
             timerId = setTimeout(() => {
-                console.log('Очистка состояния');
-                setFormValidState(INITIAL_STATE);
+                dispatchForm({ type: 'RESET_VALIDITY'});
             }, 2000);
         }
         return () => {
             clearTimeout(timerId);
         };
 
-    }, [formValidState]);
+    }, [isValid]);
+
+    useEffect(() => {
+        if (isFormReadyToSubmit) {
+            onSubmit(values);
+            dispatchForm({ type: 'CLEAR'});
+        }
+    }, [isFormReadyToSubmit, values, onSubmit]);
+
+    const onChange = (e) => {
+        dispatchForm({ type: 'SET_VALUE', payload: { [e.target.name]: e.target.value}});
+    };
 
     const addJornalItem = (e) => {
         e.preventDefault();
-        const formData = new FormData(e.target);
-        const formProps = Object.fromEntries(formData);
-
-        let isFormValid = true;
-        if (!formProps.title?.trim().length) {
-            setFormValidState(state => ({...state, title: false}));
-            isFormValid = false;
-        } else {
-            setFormValidState(state => ({...state, title: true}));
-        }
-        if (!formProps.post?.trim().length) {
-            setFormValidState(state => ({...state, post: false}));
-            isFormValid = false;
-        } else {
-            setFormValidState(state => ({...state, post: true}));
-        }
-        if (!formProps.date) {
-            setFormValidState(state => ({...state, date: false}));
-            isFormValid = false;
-        } else {
-            setFormValidState(state => ({...state, date: true}));
-        }
-        if (!isFormValid) {
-            return;
-        }
-        onSubmit(formProps);
+        dispatchForm({ type: 'SUBMIT'});
     };
     
     return (
         <>
             <form className={styles['jornal-form']} onSubmit={addJornalItem}>
                 <div>
-                    <input type='text' name='title' className={cn(styles['input-title'], {
-                        [styles['invalid']]: !formValidState.title
+                    <input type='text' ref={titleRef} onChange={onChange} value={values.title} name='title' className={cn(styles['input-title'], {
+                        [styles['invalid']]: !isValid.title
                     })}/>
                 </div>
                 <div className={styles['form-row']}>
@@ -71,8 +69,8 @@ function JornalForm({ onSubmit }) {
                         <img src="/calender.svg" alt="Иконка календаря" />
                         <span>Дата</span>
                     </label>
-                    <input type='date' id='date' name='date' className={cn(styles['input'], {
-                        [styles['invalid']]: !formValidState.date
+                    <input type='date' ref={dateRef} onChange={onChange} value={values.date} id='date' name='date' className={cn(styles['input'], {
+                        [styles['invalid']]: !isValid.date
                     })} />
                 </div>
 
@@ -81,11 +79,11 @@ function JornalForm({ onSubmit }) {
                         <img src="/folder.svg" alt="Иконка папки" />
                         <span>Метки</span>
                     </label>
-                    <input  type='text' name='tag' id='tag' className={styles['input']}/>
+                    <input  type='text' onChange={onChange} value={values.tag} name='tag' id='tag' className={styles['input']}/>
                 </div>
                 
-                <textarea name="post" id="" cols="30" rows="10" className={cn(styles['input'], {
-                        [styles['invalid']]: !formValidState.post
+                <textarea name="post" ref={postRef} onChange={onChange} value={values.post} id="" cols="30" rows="10" className={cn(styles['input'], {
+                        [styles['invalid']]: !isValid.post
                     })}></textarea>
                 <Button text='Сохранить' />
             </form>
