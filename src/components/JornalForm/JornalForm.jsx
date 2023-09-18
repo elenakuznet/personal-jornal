@@ -1,15 +1,32 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Button from '../Button/Button';
-import './JornalForm.css';
+import styles from './JornalForm.module.css';
+import cn from 'classnames';
+
+const INITIAL_STATE = {
+        title: true,
+        post: true,
+        date: true
+    };
 
 
 function JornalForm({ onSubmit }) {
 
-    const [formValidState, setFormValidState] = useState({
-        title: true,
-        post: true,
-        date: true
-    });
+    const [formValidState, setFormValidState] = useState(INITIAL_STATE);
+
+    useEffect(() => {
+        let timerId;
+        if (!formValidState.date || !formValidState.post || !formValidState.title) {
+            timerId = setTimeout(() => {
+                console.log('Очистка состояния');
+                setFormValidState(INITIAL_STATE);
+            }, 2000);
+        }
+        return () => {
+            clearTimeout(timerId);
+        };
+
+    }, [formValidState]);
 
     const addJornalItem = (e) => {
         e.preventDefault();
@@ -43,11 +60,33 @@ function JornalForm({ onSubmit }) {
     
     return (
         <>
-            <form className='jornal-form' onSubmit={addJornalItem}>
-                <input type='text' name='title' style={{ border: formValidState.title ? undefined : '1px solid red'}}/>
-                <input type='date' name='date' style={{ border: formValidState.date ? undefined : '1px solid red'}}/>
-                <input type='text' name='tag' />
-                <textarea name="post" id="" cols="30" rows="10" style={{ border: formValidState.post ? undefined : '1px solid red'}}></textarea>
+            <form className={styles['jornal-form']} onSubmit={addJornalItem}>
+                <div>
+                    <input type='text' name='title' className={cn(styles['input-title'], {
+                        [styles['invalid']]: !formValidState.title
+                    })}/>
+                </div>
+                <div className={styles['form-row']}>
+                    <label htmlFor='date' className={styles['form-label']}>
+                        <img src="/calender.svg" alt="Иконка календаря" />
+                        <span>Дата</span>
+                    </label>
+                    <input type='date' id='date' name='date' className={cn(styles['input'], {
+                        [styles['invalid']]: !formValidState.date
+                    })} />
+                </div>
+
+                <div className={styles['form-row']}>
+                    <label htmlFor='tag' className={styles['form-label']}>
+                        <img src="/folder.svg" alt="Иконка папки" />
+                        <span>Метки</span>
+                    </label>
+                    <input  type='text' name='tag' id='tag' className={styles['input']}/>
+                </div>
+                
+                <textarea name="post" id="" cols="30" rows="10" className={cn(styles['input'], {
+                        [styles['invalid']]: !formValidState.post
+                    })}></textarea>
                 <Button text='Сохранить' />
             </form>
         </>
