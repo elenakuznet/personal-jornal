@@ -3,6 +3,7 @@ import Button from '../Button/Button';
 import styles from './JornalForm.module.css';
 import cn from 'classnames';
 import { INITIAL_STATE, formReducer } from './JornalForm.state';
+import Input from '../Input/Input';
 
 
 function JornalForm({ onSubmit }) {
@@ -60,18 +61,14 @@ function JornalForm({ onSubmit }) {
         <>
             <form className={styles['jornal-form']} onSubmit={addJornalItem}>
                 <div>
-                    <input type='text' ref={titleRef} onChange={onChange} value={values.title} name='title' className={cn(styles['input-title'], {
-                        [styles['invalid']]: !isValid.title
-                    })}/>
+                    <Input type='text' isValid={isValid.title} ref={titleRef} onChange={onChange} value={values.title} name='title' appearence='title' />
                 </div>
                 <div className={styles['form-row']}>
                     <label htmlFor='date' className={styles['form-label']}>
                         <img src="/calender.svg" alt="Иконка календаря" />
                         <span>Дата</span>
                     </label>
-                    <input type='date' ref={dateRef} onChange={onChange} value={values.date} id='date' name='date' className={cn(styles['input'], {
-                        [styles['invalid']]: !isValid.date
-                    })} />
+                    <Input type='date' isValid={isValid.date} ref={dateRef} onChange={onChange} value={values.date} id='date' name='date' />
                 </div>
 
                 <div className={styles['form-row']}>
@@ -79,7 +76,7 @@ function JornalForm({ onSubmit }) {
                         <img src="/folder.svg" alt="Иконка папки" />
                         <span>Метки</span>
                     </label>
-                    <input  type='text' onChange={onChange} value={values.tag} name='tag' id='tag' className={styles['input']}/>
+                    <Input  type='text' onChange={onChange} value={values.tag} name='tag' id='tag'/>
                 </div>
                 
                 <textarea name="post" ref={postRef} onChange={onChange} value={values.post} id="" cols="30" rows="10" className={cn(styles['input'], {
