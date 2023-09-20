@@ -1,11 +1,10 @@
 import './CardButton.css';
 
-function CartButton({ children, className }) {
+function CartButton({ children, className, ...props}) {
     const cl = 'card-button' + (className ? ' ' + className : '');
 
-    
     return (
-        <button className={cl}>
+        <button {...props} className={cl}>
             {children}
         </button>
     );

@@ -7,7 +7,7 @@ import Input from '../Input/Input';
 import { UserContext } from '../../context/user.context';
 
 
-function JornalForm({ onSubmit }) {
+function JornalForm({ onSubmit, data, onDelete }) {
 
     const [formState, dispatchForm] = useReducer(formReducer, INITIAL_STATE);
     const { isValid, isFormReadyToSubmit, values } = formState;
@@ -30,6 +30,10 @@ function JornalForm({ onSubmit }) {
     };
 
     useEffect(() => {
+        dispatchForm({ type: 'SET_VALUE', payload: { ...data }});
+    }, [data]);
+
+    useEffect(() => {
         let timerId;
         if (!isValid.date || !isValid.post || !isValid.title) {
             focusError(isValid);
@@ -47,8 +51,9 @@ function JornalForm({ onSubmit }) {
         if (isFormReadyToSubmit) {
             onSubmit(values);
             dispatchForm({ type: 'CLEAR'});
+            dispatchForm({ type: 'SET_VALUE', payload: { userId }});
         }
-    }, [isFormReadyToSubmit, values, onSubmit]);
+    }, [isFormReadyToSubmit, values, onSubmit, userId]);
 
     useEffect(() => {
         dispatchForm({ type: 'SET_VALUE', payload: { userId }});
@@ -66,15 +71,18 @@ function JornalForm({ onSubmit }) {
     return (
         <>
             <form className={styles['jornal-form']} onSubmit={addJornalItem}>
-                <div>
+                <div className={styles['form-row']}>
                     <Input type='text' isValid={isValid.title} ref={titleRef} onChange={onChange} value={values.title} name='title' appearence='title' />
+                    {data.id && <button className={styles['delete']} type='button' onClick={() => onDelete(data.id)}>
+                        <img src="/archive.svg" alt="Кнопка удалить" />
+                    </button>}
                 </div>
                 <div className={styles['form-row']}>
                     <label htmlFor='date' className={styles['form-label']}>
                         <img src="/calender.svg" alt="Иконка календаря" />
                         <span>Дата</span>
                     </label>
-                    <Input type='date' isValid={isValid.date} ref={dateRef} onChange={onChange} value={values.date} id='date' name='date' />
+                    <Input type='date' ref={dateRef} onChange={onChange} name='date' value={values.date ? new Date(values.date).toISOString().slice(0, 10) : ''} id="date" isValid={!isValid.title}/>
                 </div>
 
                 <div className={styles['form-row']}>
@@ -88,7 +96,7 @@ function JornalForm({ onSubmit }) {
                 <textarea name="post" ref={postRef} onChange={onChange} value={values.post} id="" cols="30" rows="10" className={cn(styles['input'], {
                         [styles['invalid']]: !isValid.post
                     })}></textarea>
-                <Button text='Сохранить' />
+                <Button>Сохранить</Button>
             </form>
         </>
     );

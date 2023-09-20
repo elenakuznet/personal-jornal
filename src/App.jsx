@@ -7,6 +7,7 @@ import JornalAddButton from './components/JornalAddButton/JornalAddButton';
 import JornalForm from './components/JornalForm/JornalForm';
 import { useLocalStorage } from './hooks/use-localstorage.hook';
 import {UserContextProvider} from './context/user.context';
+import { useState } from 'react';
 
 
 // const INITIAL_DATA = [
@@ -36,13 +37,32 @@ function mapItems(items) {
 
 function App() {
   const [items, setItems] = useLocalStorage('data');
+  const [selectedItem, setSelectedItem] = useState({});
+
+  console.log('App');
 
   const addItems = (item) => {
-    setItems([...mapItems(items), {
+    if (!item.id) {
+      setItems([...mapItems(items), {
       ...item,
       date: new Date(item.date),
       id: items.length > 0 ? Math.max(...items.map(i => i.id)) + 1 : 1
     }]);
+    } else {
+      setItems([...mapItems(items).map(i => {
+        if (i.id === item.id) {
+          return {
+            ...item
+          };
+        }
+        return i;
+      })]);
+    }
+    
+  };
+
+  const deleteItem = (id) => {
+    setItems([...items.filter(i => i.id !== id)]);
   };
 
   return (
@@ -52,10 +72,10 @@ function App() {
           <LeftPanel>
             <Header/>
             <JornalAddButton />
-            <JornalList items={mapItems(items)} />
+            <JornalList items={mapItems(items)} setItem={setSelectedItem} />
           </LeftPanel>
           <Body>
-            <JornalForm onSubmit={addItems}/>
+            <JornalForm onSubmit={addItems} onDelete={deleteItem} data={selectedItem}/>
           </Body>
         </div>
       </UserContextProvider>
