@@ -10,21 +10,6 @@ import {UserContextProvider} from './context/user.context';
 import { useState } from 'react';
 
 
-// const INITIAL_DATA = [
-//     {
-//       id: 1,
-//       title: 'Подготовка к обновлению курсов',
-//       text: 'Горные походы открывают удивительные природные ландшафты',
-//       date: new Date()
-//     },
-//     {
-//       id: 2,
-//       title: 'Поход в годы',
-//       text: 'Думал, что очень много време...',
-//       date: new Date()
-//     }
-//   ];
-
 function mapItems(items) {
   if (!items) {
     return [];
@@ -71,7 +56,7 @@ function App() {
         <div className='app'>
           <LeftPanel>
             <Header/>
-            <JornalAddButton />
+            <JornalAddButton clearForm={() => setSelectedItem(null)}/>
             <JornalList items={mapItems(items)} setItem={setSelectedItem} />
           </LeftPanel>
           <Body>

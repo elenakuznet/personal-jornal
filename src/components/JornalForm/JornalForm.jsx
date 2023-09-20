@@ -30,8 +30,12 @@ function JornalForm({ onSubmit, data, onDelete }) {
     };
 
     useEffect(() => {
+        if (!data) {
+            dispatchForm({ type: 'CLEAR'});
+            dispatchForm({ type: 'SET_VALUE', payload: { userId }});
+        }
         dispatchForm({ type: 'SET_VALUE', payload: { ...data }});
-    }, [data]);
+    }, [data, userId]);
 
     useEffect(() => {
         let timerId;
@@ -67,13 +71,20 @@ function JornalForm({ onSubmit, data, onDelete }) {
         e.preventDefault();
         dispatchForm({ type: 'SUBMIT'});
     };
+
+
+    const deleteJornalItem = () => {
+        onDelete(data.id);
+        dispatchForm({ type: 'CLEAR'});
+        dispatchForm({ type: 'SET_VALUE', payload: { userId }});
+    };
     
     return (
         <>
             <form className={styles['jornal-form']} onSubmit={addJornalItem}>
                 <div className={styles['form-row']}>
                     <Input type='text' isValid={isValid.title} ref={titleRef} onChange={onChange} value={values.title} name='title' appearence='title' />
-                    {data.id && <button className={styles['delete']} type='button' onClick={() => onDelete(data.id)}>
+                    {data?.id && <button className={styles['delete']} type='button' onClick={deleteJornalItem}>
                         <img src="/archive.svg" alt="Кнопка удалить" />
                     </button>}
                 </div>
@@ -82,7 +93,7 @@ function JornalForm({ onSubmit, data, onDelete }) {
                         <img src="/calender.svg" alt="Иконка календаря" />
                         <span>Дата</span>
                     </label>
-                    <Input type='date' ref={dateRef} onChange={onChange} name='date' value={values.date ? new Date(values.date).toISOString().slice(0, 10) : ''} id="date" isValid={!isValid.title}/>
+                    <Input type='date' ref={dateRef} onChange={onChange} name='date' value={values.date ? new Date(values.date).toISOString().slice(0, 10) : ''} id="date" isValid={isValid.date}/>
                 </div>
 
                 <div className={styles['form-row']}>
