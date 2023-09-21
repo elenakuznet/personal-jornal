@@ -90,7 +90,7 @@ function JornalForm({ onSubmit, data, onDelete }) {
                 </div>
                 <div className={styles['form-row']}>
                     <label htmlFor='date' className={styles['form-label']}>
-                        <img src="/calender.svg" alt="Иконка календаря" />
+                        <img src="calender.svg" alt="Иконка календаря" />
                         <span>Дата</span>
                     </label>
                     <Input type='date' ref={dateRef} onChange={onChange} name='date' value={values.date ? new Date(values.date).toISOString().slice(0, 10) : ''} id="date" isValid={isValid.date}/>
@@ -98,7 +98,7 @@ function JornalForm({ onSubmit, data, onDelete }) {
 
                 <div className={styles['form-row']}>
                     <label htmlFor='tag' className={styles['form-label']}>
-                        <img src="/folder.svg" alt="Иконка папки" />
+                        <img src="folder.svg" alt="Иконка папки" />
                         <span>Метки</span>
                     </label>
                     <Input  type='text' onChange={onChange} value={values.tag} name='tag' id='tag'/>
